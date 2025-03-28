@@ -1,0 +1,10 @@
+[
+    {
+        "nome": "John Doe da Silva",
+        "permissoes": {
+            "escrita": ["notas.csv", "musica.mp3"],
+            "leitura": ["notas.csv", "musica.mp3"],
+            "remoção": ["notas.csv"]
+        }
+    }
+]
