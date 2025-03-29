@@ -1,4 +1,4 @@
-#alunos: João Pedro Cardoso de Liz
+#aluno: João Pedro Cardoso de Liz
 
 import json
 import json.tool
@@ -8,19 +8,22 @@ def ler_arquivo_matriz():
         # Lê o conteúdo do arquivo (arquivo.read()) e deserializa o
         # JSON para dicionário do Python (json.loads())
         permissoes = json.loads(arquivo.read())
+
+    return permissoes
         
 def ler_arquivo_usuarios():
     with open("usuarios.json", "r") as arquivo:
         dados_json = json.loads(arquivo.read())
-        return dados_json
 
-def editar_permissoes():
+    return dados_json
+
+def editar_permissoes(permissoes):
     permissoes[0]['permissoes']
 
-def remover_permissoes():
-    permissoes[0]['permissoes']['leitura'].remove('notas.csv')
+def remover_permissoes(permissoes, tipo, especifica):
+    permissoes[0]['permissoes'][tipo].remove(especifica)
 
-def salvar_resultados():
+def salvar_resultados(permissoes):
     # Abre arquivo para escrita para salvarmos o resultado das nossas operações
     with open('matriz_controle_acesso.json', mode='w') as arquivo:
         # Serializa a variável permissões para JSON
@@ -32,22 +35,40 @@ def salvar_resultados():
 def registrar_usuario():
     login = str(input("Digite o login: "))
     senha = str(input("Digite a senha: "))
+
     usuario = {
         'nome': login,
         'senha': senha
     }
-    
+
+    usuarios = ler_arquivo_usuarios()
+    usuarios.append(usuario)
+
     with open("usuarios.json", "w") as arquivo:
-        json.dump(usuario, arquivo)
-    
-    return login, senha
+        json.dump(usuarios, arquivo)
 
 def __init__():
-        
-    # TO-DO
-    # criar uma variavel 'dados_json' para chamar a função de leitura
+    dados_json = ler_arquivo_usuarios()
     
-    login_cadastrado = dados_json['nome']
-    senha_cadastrada = dados_json['senha']
+    print ("\n Seja bem-vindo ao controle de acesso! :D")
+
+    anonimo = True
+    while anonimo:
+        print("""
+            -_--_--_--_--_--_--_--_--_--_-
+            [1] - Autenticação
+            [2] - Cadastro
+            [3] - Sair
+            -_--_--_--_--_--_--_--_--_--_-
+            """)
+        opcao = int(input("===>>> "))
+
+        if opcao == 1.0:
+            print("1234")
+
+        elif opcao == 2.0:
+            registrar_usuario()
+            print("\nUsuário cadastrado com sucesso!")
+            
     
-    
+__init__()
