@@ -1,10 +1,1 @@
-[
-    {
-        "nome": "joao",
-        "permissoes": {
-            "escrita": ["musica.mp3"],
-            "leitura": ["notas.csv", "musica.mp3"],
-            "exclusao": ["musica.mp3"]
-        }
-    }
-]
+[{"nome": "joao", "permissoes": {"escrita": ["musica.mp3", "arquivo.txt", "novo_texto.txt", "jogo.exe", "jogo2.exe", "jogo3.exe"], "leitura": ["notas.csv", "musica.mp3", "arquivo.txt", "novo_texto.txt", "jogo.exe", "jogo2.exe", "jogo3.exe"], "exclusao": ["musica.mp3", "arquivo.txt", "novo_texto.txt", "jogo.exe", "jogo2.exe", "jogo3.exe"]}}]

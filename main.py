@@ -17,21 +17,16 @@ def ler_arquivo_usuarios():
 
 
 def listar_arquivos(login):
-    permissoes = ler_arquivo_matriz()
+    usuario = buscar_usuario_matriz(login)
+    if usuario is None:
+        print("\nUsuário não encontrado ou sem permissões!")
+        return
 
-    for usuario in permissoes:
-        if usuario['nome'] == login:
-            print("\nArquivos com permissão de leitura:")
+    arquivo_permitido = usuario['permissoes'].get('leitura')
 
-            # Combina todas as permissões em uma única lista     
-            arquivo_leitura = usuario['permissoes'].get('leitura')   
-
-            # Lista os arquivos únicos
-            for arquivo in arquivo_leitura:
-                print(f"- {arquivo}")
-            return
-
-    print("\nUsuário não encontrado ou sem permissões!")
+    print("\nArquivos que você tem permissão para acessar:")
+    for arquivo in arquivo_permitido:
+        print(f"- {arquivo}")
 
 
 def salvar_resultados(permissoes):
@@ -65,6 +60,29 @@ def buscar_usuario(login):
 
     return None
 
+
+def buscar_usuario_matriz(login):
+    permissoes = ler_arquivo_matriz()
+    for usuario in permissoes:
+        if usuario['nome'] == login:
+            return permissoes.index(usuario), usuario
+    return None, None
+
+
+def criar_arquivo(nome_arquivo, login, permissoes):
+    index, usuario = buscar_usuario_matriz(login)
+
+    if usuario is None:
+        print("\nUsuário não encontrado na matriz de controle de acesso!")
+        return
+
+    permissoes[index]['permissoes'].setdefault('leitura').append(nome_arquivo)
+    permissoes[index]['permissoes'].setdefault('escrita').append(nome_arquivo)
+    permissoes[index]['permissoes'].setdefault('exclusao').append(nome_arquivo)
+
+    salvar_resultados(permissoes)
+
+    print(f"\nArquivo '{nome_arquivo}' adicionado às permissões do usuário '{login}'.")
 
 def __init__():
     dados_json = ler_arquivo_usuarios()
@@ -118,7 +136,14 @@ def __init__():
                         opcao = int(input("===>>> "))
 
                         if opcao == 1.0:
+                            print("\nArquivos com permissão de leitura:")
                             listar_arquivos(login)
+
+                        elif opcao == 2.0:
+                            nome = str(input("Informe o nome do arquivo: "))
+                            criar_arquivo(nome, login, permissoes)
+                            print(
+                                f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
 
                 else:
                     print("\nSenha incorreta!")
