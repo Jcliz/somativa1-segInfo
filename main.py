@@ -66,23 +66,33 @@ def buscar_usuario_matriz(login):
     for usuario in permissoes:
         if usuario['nome'] == login:
             return permissoes.index(usuario), usuario
+        
+        print("\nUsuário não encontrado na matriz de controle de acesso!")
     return None, None
 
 
 def criar_arquivo(nome_arquivo, login, permissoes):
     index, usuario = buscar_usuario_matriz(login)
 
-    if usuario is None:
-        print("\nUsuário não encontrado na matriz de controle de acesso!")
-        return
-
-    permissoes[index]['permissoes'].setdefault('leitura').append(nome_arquivo)
-    permissoes[index]['permissoes'].setdefault('escrita').append(nome_arquivo)
-    permissoes[index]['permissoes'].setdefault('exclusao').append(nome_arquivo)
+    #TO-DO
+    #try catches para evitar exceção de arquivo não encontrado
+    if usuario is not None:
+        permissoes[index]['permissoes'].setdefault('leitura').append(nome_arquivo)
+        permissoes[index]['permissoes'].setdefault('escrita').append(nome_arquivo)
+        permissoes[index]['permissoes'].setdefault('exclusao').append(nome_arquivo)
 
     salvar_resultados(permissoes)
 
-    print(f"\nArquivo '{nome_arquivo}' adicionado às permissões do usuário '{login}'.")
+def excluir_arquivo(login, nome_arquivo, permissoes):
+    index, usuario = buscar_usuario_matriz(login)
+    #TO-DO
+    #try catches para evitar exceção de arquivo não encontrado
+    if usuario is not None:
+        permissoes[index]['permissoes']['leitura'].remove(nome_arquivo)
+        permissoes[index]['permissoes']['escrita'].remove(nome_arquivo)
+        permissoes[index]['permissoes']['exclusao'].remove(nome_arquivo)
+
+    salvar_resultados(permissoes)
 
 def __init__():
     dados_json = ler_arquivo_usuarios()
@@ -140,10 +150,16 @@ def __init__():
                             listar_arquivos(login)
 
                         elif opcao == 2.0:
-                            nome = str(input("Informe o nome do arquivo: "))
+                            nome = str(input("\nInforme o nome do arquivo: "))
                             criar_arquivo(nome, login, permissoes)
                             print(
                                 f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
+                            
+                        elif opcao == 3.0:
+                            nome = str(input("\nInforme o nome do arquivo: "))
+                            excluir_arquivo(login, nome, permissoes)
+                            print(
+                                f"\nArquivo '{nome}' removido das permissões do usuário '{login}'.")
 
 
                 else:
