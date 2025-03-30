@@ -33,7 +33,7 @@ def salvar_resultados(permissoes):
         arquivo.write(permissoes_serializado)
         
 def registrar_usuario():
-    login = str(input("Digite o login: "))
+    login = str(input("\nDigite o login: "))
     senha = str(input("Digite a senha: "))
 
     usuario = {
@@ -46,6 +46,14 @@ def registrar_usuario():
 
     with open("usuarios.json", "w") as arquivo:
         json.dump(usuarios, arquivo)
+
+def buscar_usuario(login):
+    usuarios = ler_arquivo_usuarios()
+    for usuario in usuarios:
+        if usuario['nome'] == login:
+            return usuarios.index(usuario)
+        
+    return None
 
 def __init__():
     dados_json = ler_arquivo_usuarios()
@@ -64,11 +72,35 @@ def __init__():
         opcao = int(input("===>>> "))
 
         if opcao == 1.0:
-            print("1234")
+            login = str(input("Digite o login: "))
+            senha = str(input("Digite a senha: "))
+
+            busca = buscar_usuario(login)
+
+            if busca is not None:
+                login_cadastrado = dados_json[busca]['nome']
+                senha_cadastrada = dados_json[busca]['senha']
+
+                if login == login_cadastrado and senha == senha_cadastrada:
+                    print("\nLogin realizado com sucesso!")
+                    anonimo = False
+
+                else:
+                    print("\nSenha incorreta!")
+
+            else:
+                print("\nUsuário inexistente!")
 
         elif opcao == 2.0:
             registrar_usuario()
             print("\nUsuário cadastrado com sucesso!")
+
+        elif opcao == 3.0:
+            print("\nAté mais! :(")
+            break
+
+        else:
+            print("\nOpção inválida! Tente novamente.")
             
     
 __init__()
