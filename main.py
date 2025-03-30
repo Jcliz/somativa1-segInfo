@@ -87,10 +87,15 @@ def excluir_arquivo(login, nome_arquivo, permissoes):
     index, usuario = buscar_usuario_matriz(login)
     #TO-DO
     #try catches para evitar exceção de arquivo não encontrado
-    if usuario is not None:
+    if usuario is not None and nome_arquivo in permissoes[index]['permissoes']['exclusao']:
         permissoes[index]['permissoes']['leitura'].remove(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].remove(nome_arquivo)
         permissoes[index]['permissoes']['exclusao'].remove(nome_arquivo)
+
+        print(f"\nArquivo '{nome_arquivo}' removido das permissões do usuário '{login}'.")
+
+    else:
+        print("\nAcesso negado.")
 
     salvar_resultados(permissoes)
 
@@ -174,9 +179,6 @@ def __init__():
                         elif opcao == 3.0:
                             nome = str(input("\nInforme o nome do arquivo: "))
                             excluir_arquivo(login, nome, permissoes)
-                            print(
-                                f"\nArquivo '{nome}' removido das permissões do usuário '{login}'.")
-
 
                 else:
                     print("\nSenha incorreta!")
