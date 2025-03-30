@@ -110,7 +110,12 @@ def buscar_arquivo(nome_arquivo):
 
     return False
 
+def buscar_permissoes(permissao, usuario):
+    return usuario['permissoes'].get(permissao)
+
 def __init__():
+    #TO-DO
+    #identificar variaveis que podem ser declaradas ao inicio do codigo.
     dados_json = ler_arquivo_usuarios()
 
     print("\n Seja bem-vindo ao controle de acesso! :D")
@@ -128,7 +133,7 @@ def __init__():
         opcao = int(input("===>>> "))
 
         if opcao == 1.0:
-            login = str(input("Digite o login: "))
+            login = str(input("\nDigite o login: "))
             senha = str(input("Digite a senha: "))
 
             busca = buscar_usuario(login)
@@ -138,7 +143,7 @@ def __init__():
                 senha_cadastrada = dados_json[busca]['senha']
 
                 if login == login_cadastrado and senha == senha_cadastrada:
-                    print(f"\nBem vindo {login}!")
+                    print(f"\nBem vindo(a) {login}!")
                     anonimo = False
 
                     autenticado = True
@@ -153,7 +158,7 @@ def __init__():
         [4] - Leitura
         [5] - Escrita
             
-        [0] - Sair
+        [0] - Voltar
         -_--_--_--_--_--_--_--_--_--_-
                             """)
 
@@ -161,11 +166,11 @@ def __init__():
 
                         opcao = int(input("===>>> "))
 
-                        if opcao == 1.0:
+                        if opcao == 1:
                             print("\nArquivos com permissão de leitura:")
                             listar_arquivos(login)
 
-                        elif opcao == 2.0:
+                        elif opcao == 2:
                             nome = str(input("\nInforme o nome do arquivo: "))
 
                             if buscar_arquivo(nome):
@@ -176,13 +181,25 @@ def __init__():
                                 print(
                                     f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
                             
-                        elif opcao == 3.0:
+                        elif opcao == 3:
                             nome = str(input("\nInforme o nome do arquivo: "))
                             excluir_arquivo(login, nome, permissoes)
 
-                        elif opcao == 4.0:
-                            print("""
-        Lendo os arquivos...
+                        elif opcao == 4:
+                            index, usuario = buscar_usuario_matriz(login)
+                            arquivos = buscar_permissoes("leitura", usuario)
+
+                            print("\n Selecione o arquivo desejado: \n")
+                            for arquivo in arquivos:
+                                print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
+
+                            print("\n[0] - Voltar")
+
+                            leitura = int(input("\n===>>> "))
+
+                            if 1 <= leitura <= len(arquivos):
+                                print("""
+        Lendo o arquivo...
                                   
         ==>>
                                 ,..........   ..........,         
@@ -195,7 +212,46 @@ def __init__():
                             '''''''''''''''''';''';'''''''''''''''''' 
                                                 '''            
                                               
-                                    """)
+                                        """)
+                                
+                            elif leitura == 0:
+                                print("\nVoltando...")
+                                
+                            else:
+                                print("\nOpção inválida.")
+
+                        elif opcao == 5:
+                            index, usuario = buscar_usuario_matriz(login)
+
+                            escrita_permitida = buscar_permissoes("escrita", usuario)
+                            arquivos = buscar_permissoes("leitura", usuario)
+
+                            print("\n Selecione o arquivo desejado: \n")
+                            for arquivo in arquivos:
+                                print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
+                                if arquivo in escrita_permitida:
+                                    permitido = arquivo
+
+                            print("\n[0] - Voltar")
+
+                            leitura = int(input("\n===>>> "))
+
+                            if 1 <= leitura <= len(arquivos):
+                                if arquivos.index(permitido) + 1 == leitura:
+                                    print("\nAcesso liberado.")
+                                    escrita = str(input("\nDigite suas alterações desejadas: "))
+                                    print("\nArquivo alterado.")
+
+                                else:
+                                    print("\nAcesso negado.")
+
+                            elif leitura == 0:
+                                print("\nVoltando...")
+
+                        elif opcao == 0:
+                            print("\nVoltando à tela de autenticação e cadastro...")
+                            autenticado = False
+                            anonimo = True
 
                 else:
                     print("\nSenha incorreta!")
