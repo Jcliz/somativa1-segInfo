@@ -77,9 +77,9 @@ def criar_arquivo(nome_arquivo, login, permissoes):
     #TO-DO
     #try catches para evitar exceção de arquivo não encontrado
     if usuario is not None:
-        permissoes[index]['permissoes'].setdefault('leitura').append(nome_arquivo)
-        permissoes[index]['permissoes'].setdefault('escrita').append(nome_arquivo)
-        permissoes[index]['permissoes'].setdefault('exclusao').append(nome_arquivo)
+        permissoes[index]['permissoes']['leitura'].append(nome_arquivo)
+        permissoes[index]['permissoes']['escrita'].append(nome_arquivo)
+        permissoes[index]['permissoes']['exclusao'].append(nome_arquivo)
 
     salvar_resultados(permissoes)
 
@@ -93,6 +93,17 @@ def excluir_arquivo(login, nome_arquivo, permissoes):
         permissoes[index]['permissoes']['exclusao'].remove(nome_arquivo)
 
     salvar_resultados(permissoes)
+
+def buscar_arquivo(nome_arquivo):
+    permissoes = ler_arquivo_matriz()
+
+    for usuario in permissoes:
+        if nome_arquivo in usuario['permissoes'].get('leitura') or \
+           nome_arquivo in usuario['permissoes'].get('escrita') or \
+           nome_arquivo in usuario['permissoes'].get('exclusao'):
+            return True  
+
+    return False
 
 def __init__():
     dados_json = ler_arquivo_usuarios()
@@ -151,9 +162,14 @@ def __init__():
 
                         elif opcao == 2.0:
                             nome = str(input("\nInforme o nome do arquivo: "))
-                            criar_arquivo(nome, login, permissoes)
-                            print(
-                                f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
+
+                            if buscar_arquivo(nome):
+                                print(f"\nErro: O arquivo '{nome}' já existe!")
+        
+                            else:
+                                criar_arquivo(nome, login, permissoes)
+                                print(
+                                    f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
                             
                         elif opcao == 3.0:
                             nome = str(input("\nInforme o nome do arquivo: "))
