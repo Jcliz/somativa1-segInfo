@@ -17,7 +17,7 @@ def ler_arquivo_usuarios():
 
 
 def listar_arquivos(login):
-    usuario = buscar_usuario_matriz(login)
+    index, usuario = buscar_usuario_matriz(login)
     if usuario is None:
         print("\nUsuário não encontrado ou sem permissões!")
         return
@@ -144,6 +144,7 @@ def __init__():
                             criar_arquivo(nome, login, permissoes)
                             print(
                                 f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
+
 
                 else:
                     print("\nSenha incorreta!")
