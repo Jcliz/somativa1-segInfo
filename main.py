@@ -1,37 +1,46 @@
-#aluno: João Pedro Cardoso de Liz
+# aluno: João Pedro Cardoso de Liz
 
 import json
 import json.tool
+
 
 def ler_arquivo_matriz():
     with open("matriz_controle_acesso.json", mode="r") as arquivo:
         # Lê o conteúdo do arquivo (arquivo.read()) e deserializa o
         # JSON para dicionário do Python (json.loads())
-        permissoes = json.loads(arquivo.read())
+        return json.loads(arquivo.read())
 
-    return permissoes
-        
+
 def ler_arquivo_usuarios():
     with open("usuarios.json", "r") as arquivo:
-        dados_json = json.loads(arquivo.read())
+        return json.loads(arquivo.read())
 
-    return dados_json
 
-def editar_permissoes(permissoes):
-    permissoes[0]['permissoes']
+def listar_arquivos(login):
+    permissoes = ler_arquivo_matriz()
 
-def remover_permissoes(permissoes, tipo, especifica):
-    permissoes[0]['permissoes'][tipo].remove(especifica)
+    for usuario in permissoes:
+        if usuario['nome'] == login:
+            print("\nArquivos com permissão de leitura:")
+
+            # Combina todas as permissões em uma única lista     
+            arquivo_leitura = usuario['permissoes'].get('leitura')   
+
+            # Lista os arquivos únicos
+            for arquivo in arquivo_leitura:
+                print(f"- {arquivo}")
+            return
+
+    print("\nUsuário não encontrado ou sem permissões!")
+
 
 def salvar_resultados(permissoes):
     # Abre arquivo para escrita para salvarmos o resultado das nossas operações
     with open('matriz_controle_acesso.json', mode='w') as arquivo:
-        # Serializa a variável permissões para JSON
         permissoes_serializado = json.dumps(permissoes)
-
-        # Salvar no arquivo especificado
         arquivo.write(permissoes_serializado)
-        
+
+
 def registrar_usuario():
     login = str(input("\nDigite o login: "))
     senha = str(input("Digite a senha: "))
@@ -47,27 +56,30 @@ def registrar_usuario():
     with open("usuarios.json", "w") as arquivo:
         json.dump(usuarios, arquivo)
 
+
 def buscar_usuario(login):
     usuarios = ler_arquivo_usuarios()
     for usuario in usuarios:
         if usuario['nome'] == login:
             return usuarios.index(usuario)
-        
+
     return None
+
 
 def __init__():
     dados_json = ler_arquivo_usuarios()
-    
-    print ("\n Seja bem-vindo ao controle de acesso! :D")
+
+    print("\n Seja bem-vindo ao controle de acesso! :D")
 
     anonimo = True
     while anonimo:
         print("""
-            -_--_--_--_--_--_--_--_--_--_-
-            [1] - Autenticação
-            [2] - Cadastro
-            [3] - Sair
-            -_--_--_--_--_--_--_--_--_--_-
+        -_--_--_--_--_--_--_--_--_--_-
+        [1] - Autenticação
+        [2] - Cadastro
+            
+        [0] - Sair
+        -_--_--_--_--_--_--_--_--_--_-
             """)
         opcao = int(input("===>>> "))
 
@@ -82,8 +94,31 @@ def __init__():
                 senha_cadastrada = dados_json[busca]['senha']
 
                 if login == login_cadastrado and senha == senha_cadastrada:
-                    print("\nLogin realizado com sucesso!")
+                    print(f"\nBem vindo {login}!")
                     anonimo = False
+
+                    autenticado = True
+                    while autenticado:
+                        print("""
+        -_--_--_--_--_--_--_--_--_--_-
+        Opções de manipulação de arquivos:
+            
+        [1] - Listar
+        [2] - Criar
+        [3] - Excluir
+        [4] - Leitura
+        [5] - Escrita
+            
+        [0] - Sair
+        -_--_--_--_--_--_--_--_--_--_-
+                            """)
+
+                        permissoes = ler_arquivo_matriz()
+
+                        opcao = int(input("===>>> "))
+
+                        if opcao == 1.0:
+                            listar_arquivos(login)
 
                 else:
                     print("\nSenha incorreta!")
@@ -95,12 +130,12 @@ def __init__():
             registrar_usuario()
             print("\nUsuário cadastrado com sucesso!")
 
-        elif opcao == 3.0:
-            print("\nAté mais! :(")
+        elif opcao == 0.0:
+            print("\nAté mais! :( \n")
             break
 
         else:
             print("\nOpção inválida! Tente novamente.")
-            
-    
+
+
 __init__()
