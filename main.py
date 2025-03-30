@@ -18,13 +18,13 @@ def ler_arquivo_usuarios():
 
 def listar_arquivos(login):
     index, usuario = buscar_usuario_matriz(login)
+
     if usuario is None:
-        print("\nUsuário não encontrado ou sem permissões!")
+        print("\nUsuário não encontrado ou sem permissões.")
         return
 
     arquivo_permitido = usuario['permissoes'].get('leitura')
 
-    print("\nArquivos que você tem permissão para acessar:")
     for arquivo in arquivo_permitido:
         print(f"- {arquivo}")
 
@@ -169,7 +169,7 @@ def __init__():
                             nome = str(input("\nInforme o nome do arquivo: "))
 
                             if buscar_arquivo(nome):
-                                print(f"\nErro: O arquivo '{nome}' já existe!")
+                                print(f"\nO arquivo '{nome}' já existe!")
         
                             else:
                                 criar_arquivo(nome, login, permissoes)
@@ -179,6 +179,23 @@ def __init__():
                         elif opcao == 3.0:
                             nome = str(input("\nInforme o nome do arquivo: "))
                             excluir_arquivo(login, nome, permissoes)
+
+                        elif opcao == 4.0:
+                            print("""
+        Lendo os arquivos...
+                                  
+        ==>>
+                                ,..........   ..........,         
+                            ,..,'          '.'          ',..,     
+                            ,' ,'            :            ', ',    
+                            ,' ,'             :             ', ',   
+                            ,' ,'              :              ', ',  
+                            ,' ,'............., : ,.............', ', 
+                            ,'  '............   '.'   ............'  ',
+                            '''''''''''''''''';''';'''''''''''''''''' 
+                                                '''            
+                                              
+                                    """)
 
                 else:
                     print("\nSenha incorreta!")
