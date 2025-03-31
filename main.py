@@ -1,4 +1,4 @@
-# aluno: João Pedro Cardoso de Liz
+#aluno: João Pedro Cardoso de Liz
 
 import json
 import json.tool
@@ -16,14 +16,12 @@ def ler_arquivo_usuarios():
         return json.loads(arquivo.read())
 
 
-def listar_arquivos(login):
-    index, usuario = buscar_usuario_matriz(login)
-
-    if usuario is None:
-        print("\nUsuário não encontrado ou sem permissões.")
-        return
-
+def listar_arquivos(usuario):
     arquivo_permitido = usuario['permissoes'].get('leitura')
+
+    if not arquivo_permitido:
+        print("\nSem arquivos criados.")
+        return
 
     for arquivo in arquivo_permitido:
         print(f"- {arquivo}")
@@ -37,6 +35,8 @@ def salvar_resultados(permissoes):
 
 
 def registrar_usuario():
+    permissoes = ler_arquivo_matriz()
+        
     login = str(input("\nDigite o login: "))
     senha = str(input("Digite a senha: "))
 
@@ -51,6 +51,19 @@ def registrar_usuario():
     with open("usuarios.json", "w") as arquivo:
         json.dump(usuarios, arquivo)
 
+    #criação do novo usuário na matriz
+    #inicialmente o usuário não possui nenhum arquivo, ou seja, deve criá-los
+    novo_usuario_permissoes = {
+        'nome': login,
+        'permissoes': {
+            'leitura': [],
+            'escrita': [],
+            'exclusao': []
+        }
+    }
+
+    permissoes.append(novo_usuario_permissoes)
+    salvar_resultados(permissoes)
 
 def buscar_usuario(login):
     usuarios = ler_arquivo_usuarios()
@@ -66,38 +79,43 @@ def buscar_usuario_matriz(login):
     for usuario in permissoes:
         if usuario['nome'] == login:
             return permissoes.index(usuario), usuario
-        
-        print("\nUsuário não encontrado na matriz de controle de acesso!")
+                    
     return None, None
 
 
-def criar_arquivo(nome_arquivo, login, permissoes):
-    index, usuario = buscar_usuario_matriz(login)
-
-    #TO-DO
-    #try catches para evitar exceção de arquivo não encontrado
+def criar_arquivo(nome_arquivo, index, usuario, permissoes, nome):
+    if buscar_arquivo(nome):
+        print(f"\nO arquivo '{nome}' já existe!")
+        return
+    
     if usuario is not None:
         permissoes[index]['permissoes']['leitura'].append(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].append(nome_arquivo)
         permissoes[index]['permissoes']['exclusao'].append(nome_arquivo)
 
-    salvar_resultados(permissoes)
+        print(f"\nArquivo '{nome}' criado.")
+        salvar_resultados(permissoes)
 
-def excluir_arquivo(login, nome_arquivo, permissoes):
-    index, usuario = buscar_usuario_matriz(login)
-    #TO-DO
-    #try catches para evitar exceção de arquivo não encontrado
-    if usuario is not None and nome_arquivo in permissoes[index]['permissoes']['exclusao']:
+
+def excluir_arquivo(index, usuario, nome_arquivo, permissoes):
+    if usuario is not None and nome_arquivo in \
+                        permissoes[index]['permissoes']['exclusao']:
+        
         permissoes[index]['permissoes']['leitura'].remove(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].remove(nome_arquivo)
         permissoes[index]['permissoes']['exclusao'].remove(nome_arquivo)
 
-        print(f"\nArquivo '{nome_arquivo}' removido das permissões do usuário '{login}'.")
+        print(f"\nArquivo '{nome_arquivo}' excluído com sucesso.")
+        salvar_resultados(permissoes)
+
+    elif nome_arquivo not in permissoes[index]['permissoes']['leitura']:
+        print("\nArquivo inexistente.")
+        return
 
     else:
         print("\nAcesso negado.")
+        return
 
-    salvar_resultados(permissoes)
 
 def buscar_arquivo(nome_arquivo):
     permissoes = ler_arquivo_matriz()
@@ -106,169 +124,199 @@ def buscar_arquivo(nome_arquivo):
         if nome_arquivo in usuario['permissoes'].get('leitura') or \
            nome_arquivo in usuario['permissoes'].get('escrita') or \
            nome_arquivo in usuario['permissoes'].get('exclusao'):
-            return True  
+            return True
 
     return False
+
 
 def buscar_permissoes(permissao, usuario):
     return usuario['permissoes'].get(permissao)
 
+
 def __init__():
-    #TO-DO
-    #identificar variaveis que podem ser declaradas ao inicio do codigo.
-    dados_json = ler_arquivo_usuarios()
+    try:
+        dados_json = ler_arquivo_usuarios()
 
-    print("\n Seja bem-vindo ao controle de acesso! :D")
+        print("\n Seja bem-vindo ao controle de acesso! :D")
 
-    anonimo = True
-    while anonimo:
-        print("""
-        -_--_--_--_--_--_--_--_--_--_-
-        [1] - Autenticação
-        [2] - Cadastro
-            
-        [0] - Sair
-        -_--_--_--_--_--_--_--_--_--_-
-            """)
-        opcao = int(input("===>>> "))
+        anonimo = True
+        while anonimo:
+            print("""
+            -_--_--_--_--_--_--_--_--_--_-
+            [1] - Autenticação
+            [2] - Cadastro
+                
+            [0] - Sair
+            -_--_--_--_--_--_--_--_--_--_-
+                """)
+            try:
+                opcao = int(input("===>>> "))
 
-        if opcao == 1.0:
-            login = str(input("\nDigite o login: "))
-            senha = str(input("Digite a senha: "))
+            except ValueError:
+                print("\nEntrada inválida. Apenas números são aceitos.")
+                continue
 
-            busca = buscar_usuario(login)
+            if opcao == 1.0:
+                login = str(input("\nDigite o login: "))
+                senha = str(input("Digite a senha: "))
 
-            if busca is not None:
-                login_cadastrado = dados_json[busca]['nome']
-                senha_cadastrada = dados_json[busca]['senha']
+                busca = buscar_usuario(login)
 
-                if login == login_cadastrado and senha == senha_cadastrada:
-                    print(f"\nBem vindo(a) {login}!")
-                    anonimo = False
+                if busca is not None:
+                    login_cadastrado = dados_json[busca]['nome']
+                    senha_cadastrada = dados_json[busca]['senha']
 
-                    autenticado = True
-                    while autenticado:
-                        print("""
-        -_--_--_--_--_--_--_--_--_--_-
-        Opções de manipulação de arquivos:
-            
-        [1] - Listar
-        [2] - Criar
-        [3] - Excluir
-        [4] - Leitura
-        [5] - Escrita
-            
-        [0] - Voltar
-        -_--_--_--_--_--_--_--_--_--_-
-                            """)
+                    if login == login_cadastrado and senha == senha_cadastrada:
+                        print(f"\nBem vindo(a) {login}!")
+                        anonimo = False
 
-                        permissoes = ler_arquivo_matriz()
+                        autenticado = True
+                        while autenticado:
+                            print("""
+            -_--_--_--_--_--_--_--_--_--_-
+            Opções de manipulação de arquivos:
+                
+            [1] - Listar
+            [2] - Criar
+            [3] - Excluir
+            [4] - Leitura
+            [5] - Escrita
+                
+            [0] - Voltar
+            -_--_--_--_--_--_--_--_--_--_-
+                                """)
 
-                        opcao = int(input("===>>> "))
+                            permissoes = ler_arquivo_matriz()
 
-                        if opcao == 1:
-                            print("\nArquivos com permissão de leitura:")
-                            listar_arquivos(login)
+                            try:
+                                opcao = int(input("===>>> "))
 
-                        elif opcao == 2:
-                            nome = str(input("\nInforme o nome do arquivo: "))
+                            except ValueError:
+                                print("\nEntrada inválida. Apenas números são aceitos.")
+                                continue
 
-                            if buscar_arquivo(nome):
-                                print(f"\nO arquivo '{nome}' já existe!")
-        
-                            else:
-                                criar_arquivo(nome, login, permissoes)
-                                print(
-                                    f"\nArquivo '{nome}' criado e adicionado às permissões do usuário '{login}'.")
-                            
-                        elif opcao == 3:
-                            nome = str(input("\nInforme o nome do arquivo: "))
-                            excluir_arquivo(login, nome, permissoes)
+                            if opcao == 1:
+                                print("\nArquivos com permissão de leitura:")
+                                index, usuario = buscar_usuario_matriz(login)
+                                listar_arquivos(usuario)
 
-                        elif opcao == 4:
-                            index, usuario = buscar_usuario_matriz(login)
-                            arquivos = buscar_permissoes("leitura", usuario)
+                            elif opcao == 2:
+                                index, usuario = buscar_usuario_matriz(login)
+                                nome = str(input("\nInforme o nome do arquivo: "))
+                                criar_arquivo(nome, index, usuario, permissoes, nome)
 
-                            print("\n Selecione o arquivo desejado: \n")
-                            for arquivo in arquivos:
-                                print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
+                            elif opcao == 3:
+                                index, usuario = buscar_usuario_matriz(login)
+                                nome = str(input("\nInforme o nome do arquivo: "))
+                                excluir_arquivo(index, usuario, nome, permissoes)
 
-                            print("\n[0] - Voltar")
+                            elif opcao == 4:
+                                index, usuario = buscar_usuario_matriz(login)
+                                arquivos = buscar_permissoes("leitura", usuario)
 
-                            leitura = int(input("\n===>>> "))
+                                print("\nSelecione o arquivo desejado: \n")
+                                for arquivo in arquivos:
+                                    print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
 
-                            if 1 <= leitura <= len(arquivos):
-                                print("""
-        Lendo o arquivo...
-                                  
-        ==>>
-                                ,..........   ..........,         
-                            ,..,'          '.'          ',..,     
-                            ,' ,'            :            ', ',    
-                            ,' ,'             :             ', ',   
-                            ,' ,'              :              ', ',  
-                            ,' ,'............., : ,.............', ', 
-                            ,'  '............   '.'   ............'  ',
-                            '''''''''''''''''';''';'''''''''''''''''' 
-                                                '''            
-                                              
-                                        """)
-                                
-                            elif leitura == 0:
-                                print("\nVoltando...")
-                                
-                            else:
-                                print("\nOpção inválida.")
+                                print("\n[0] - Voltar")
 
-                        elif opcao == 5:
-                            index, usuario = buscar_usuario_matriz(login)
+                                try:
+                                    leitura = int(input("\n===>>> "))
 
-                            escrita_permitida = buscar_permissoes("escrita", usuario)
-                            arquivos = buscar_permissoes("leitura", usuario)
+                                except ValueError:
+                                    print("\nEntrada inválida. Apenas números são aceitos.")
+                                    continue
 
-                            print("\n Selecione o arquivo desejado: \n")
-                            for arquivo in arquivos:
-                                print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
-                                if arquivo in escrita_permitida:
-                                    permitido = arquivo
+                                if 1 <= leitura <= len(arquivos):
+                                    print("""
+            Lendo o arquivo...
+                                    
+            ==>>
+                                    ,..........   ..........,         
+                                ,..,'          '.'          ',..,     
+                                ,' ,'            :            ', ',    
+                                ,' ,'             :             ', ',   
+                                ,' ,'              :              ', ',  
+                                ,' ,'............., : ,.............', ', 
+                                ,'  '............   '.'   ............'  ',
+                                '''''''''''''''''';''';'''''''''''''''''' 
+                                                    '''            
+                                            
+                                            """)
 
-                            print("\n[0] - Voltar")
-
-                            leitura = int(input("\n===>>> "))
-
-                            if 1 <= leitura <= len(arquivos):
-                                if arquivos.index(permitido) + 1 == leitura:
-                                    print("\nAcesso liberado.")
-                                    escrita = str(input("\nDigite suas alterações desejadas: "))
-                                    print("\nArquivo alterado.")
+                                elif leitura == 0:
+                                    print("\nVoltando...")
 
                                 else:
-                                    print("\nAcesso negado.")
+                                    print("\nOpção inválida.")
 
-                            elif leitura == 0:
-                                print("\nVoltando...")
+                            elif opcao == 5:
+                                index, usuario = buscar_usuario_matriz(login)
 
-                        elif opcao == 0:
-                            print("\nVoltando à tela de autenticação e cadastro...")
-                            autenticado = False
-                            anonimo = True
+                                escrita_permitida = buscar_permissoes(
+                                    "escrita", usuario)
+                                arquivos = buscar_permissoes(
+                                    "leitura", usuario)
+
+                                print("\n Selecione o arquivo desejado: \n")
+                                for arquivo in arquivos:
+                                    print(
+                                        f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
+                                    if arquivo in escrita_permitida:
+                                        permitido = arquivo
+
+                                print("\n[0] - Voltar")
+
+                                try:
+                                    leitura = int(input("\n===>>> "))
+
+                                except ValueError:
+                                    print(
+                                        "\nEntrada inválida. Apenas números são aceitos.")
+                                    continue
+
+                                if 1 <= leitura <= len(arquivos):
+                                    if arquivos.index(permitido) + 1 == leitura:
+                                        print("\nAcesso liberado.")
+                                        escrita = str(
+                                            input("\nDigite suas alterações desejadas: "))
+                                        print("\nArquivo alterado.")
+
+                                    else:
+                                        print("\nAcesso negado.")
+
+                                elif leitura == 0:
+                                    print("\nVoltando...")
+
+                                else:
+                                    print("Opção inválida!")
+
+                            elif opcao == 0:
+                                print(
+                                    "\nVoltando à tela de autenticação e cadastro...")
+                                autenticado = False
+                                anonimo = True
+
+                            else:
+                                print("\nOpção inválida!")
+
+                    else:
+                        print("\nSenha incorreta!")
 
                 else:
-                    print("\nSenha incorreta!")
+                    print("\nUsuário inexistente!")
+
+            elif opcao == 2.0:
+                registrar_usuario()
+                print("\nUsuário cadastrado com sucesso!")
+
+            elif opcao == 0.0:
+                print("\nAté mais! :( \n")
+                break
 
             else:
-                print("\nUsuário inexistente!")
-
-        elif opcao == 2.0:
-            registrar_usuario()
-            print("\nUsuário cadastrado com sucesso!")
-
-        elif opcao == 0.0:
-            print("\nAté mais! :( \n")
-            break
-
-        else:
-            print("\nOpção inválida! Tente novamente.")
-
+                print("\nOpção inválida! Tente novamente.")
+    except Exception as e:
+        print(f"\nErro: {e}")
 
 __init__()
