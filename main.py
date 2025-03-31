@@ -241,7 +241,10 @@ def __init__():
                                     print("\nOpção inválida.")
 
                             elif opcao == 4:
+                                __, usuario = buscar_usuario_matriz(login)
                                 arquivos = menu_opcoes(login)
+                                arquivos_gerais = buscar_permissoes("geral", usuario)
+                                arquivos_leitura = buscar_permissoes("leitura", usuario)
 
                                 try:
                                     leitura = int(input("\n===>>> "))
@@ -252,10 +255,9 @@ def __init__():
                                 
     
                                 if 1 <= leitura <= len(arquivos):
-                                    arquivos_gerais = buscar_permissoes("geral", usuario)
                                     nome_arquivo = arquivos_gerais[leitura - 1]
 
-                                    if nome_arquivo == "config.sys":
+                                    if nome_arquivo not in arquivos_leitura:
                                         print("\nAcesso negado.")
                                         continue
 
