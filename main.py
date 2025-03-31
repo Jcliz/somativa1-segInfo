@@ -17,7 +17,7 @@ def ler_arquivo_usuarios():
 
 
 def listar_arquivos(usuario):
-    arquivo_permitido = usuario['permissoes'].get('leitura')
+    arquivo_permitido = usuario['permissoes'].get('geral')
 
     if not arquivo_permitido:
         print("\nSem arquivos criados.")
@@ -58,7 +58,8 @@ def registrar_usuario():
         'permissoes': {
             'leitura': [],
             'escrita': [],
-            'exclusao': []
+            'exclusao': [],
+            'geral': []
         }
     }
 
@@ -92,6 +93,7 @@ def criar_arquivo(nome_arquivo, index, usuario, permissoes, nome):
         permissoes[index]['permissoes']['leitura'].append(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].append(nome_arquivo)
         permissoes[index]['permissoes']['exclusao'].append(nome_arquivo)
+        permissoes[index]['permissoes']['geral'].append(nome_arquivo)
 
         print(f"\nArquivo '{nome}' criado.")
         salvar_resultados(permissoes)
@@ -104,11 +106,12 @@ def excluir_arquivo(index, usuario, nome_arquivo, permissoes):
         permissoes[index]['permissoes']['leitura'].remove(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].remove(nome_arquivo)
         permissoes[index]['permissoes']['exclusao'].remove(nome_arquivo)
+        permissoes[index]['permissoes']['geral'].remove(nome_arquivo)
 
-        print(f"\nArquivo '{nome_arquivo}' excluído com sucesso.")
+        print(f"\n'{nome_arquivo}' excluído com sucesso.")
         salvar_resultados(permissoes)
 
-    elif nome_arquivo not in permissoes[index]['permissoes']['leitura']:
+    elif nome_arquivo not in permissoes[index]['permissoes']['geral']:
         print("\nArquivo inexistente.")
         return
 
@@ -123,7 +126,8 @@ def buscar_arquivo(nome_arquivo):
     for usuario in permissoes:
         if nome_arquivo in usuario['permissoes'].get('leitura') or \
            nome_arquivo in usuario['permissoes'].get('escrita') or \
-           nome_arquivo in usuario['permissoes'].get('exclusao'):
+           nome_arquivo in usuario['permissoes'].get('exclusao') or \
+           nome_arquivo in usuario['permissoes'].get('geral'):
             return True
 
     return False
@@ -132,6 +136,16 @@ def buscar_arquivo(nome_arquivo):
 def buscar_permissoes(permissao, usuario):
     return usuario['permissoes'].get(permissao)
 
+def menu_opcoes(login):
+    __, usuario = buscar_usuario_matriz(login)
+    arquivos = buscar_permissoes("geral", usuario)
+
+    print("\nSelecione o arquivo para excluir: \n")
+    for arquivo in arquivos:
+        print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
+
+    print("\n[0] - Voltar")
+    return arquivos
 
 def __init__():
     try:
@@ -197,7 +211,7 @@ def __init__():
 
                             if opcao == 1:
                                 print("\nArquivos com permissão de leitura:")
-                                index, usuario = buscar_usuario_matriz(login)
+                                ___, usuario = buscar_usuario_matriz(login)
                                 listar_arquivos(usuario)
 
                             elif opcao == 2:
@@ -207,18 +221,27 @@ def __init__():
 
                             elif opcao == 3:
                                 index, usuario = buscar_usuario_matriz(login)
-                                nome = str(input("\nInforme o nome do arquivo: "))
-                                excluir_arquivo(index, usuario, nome, permissoes)
+                                arquivos = menu_opcoes(login)
+
+                                try:
+                                    escolha = int(input("\n===>>> "))
+
+                                except ValueError:
+                                    print("\nEntrada inválida. Apenas números são aceitos.")
+                                    continue
+                        
+                                if 1 <= escolha <= len(arquivos):
+                                    nome = arquivos[escolha - 1]
+                                    excluir_arquivo(index, usuario, nome, permissoes)
+
+                                elif escolha == 0:
+                                    print("\nVoltando...")
+
+                                else:
+                                    print("\nOpção inválida.")
 
                             elif opcao == 4:
-                                index, usuario = buscar_usuario_matriz(login)
-                                arquivos = buscar_permissoes("leitura", usuario)
-
-                                print("\nSelecione o arquivo desejado: \n")
-                                for arquivo in arquivos:
-                                    print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
-
-                                print("\n[0] - Voltar")
+                                arquivos = menu_opcoes(login)
 
                                 try:
                                     leitura = int(input("\n===>>> "))
@@ -251,17 +274,14 @@ def __init__():
                                     print("\nOpção inválida.")
 
                             elif opcao == 5:
-                                index, usuario = buscar_usuario_matriz(login)
+                                _, usuario = buscar_usuario_matriz(login)
 
-                                escrita_permitida = buscar_permissoes(
-                                    "escrita", usuario)
-                                arquivos = buscar_permissoes(
-                                    "leitura", usuario)
+                                escrita_permitida = buscar_permissoes("escrita", usuario)
+                                arquivos = buscar_permissoes("geral", usuario)
 
                                 print("\n Selecione o arquivo desejado: \n")
                                 for arquivo in arquivos:
-                                    print(
-                                        f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
+                                    print(f"[{arquivos.index(arquivo) + 1}] - {arquivo}")
                                     if arquivo in escrita_permitida:
                                         permitido = arquivo
 
@@ -278,8 +298,7 @@ def __init__():
                                 if 1 <= leitura <= len(arquivos):
                                     if arquivos.index(permitido) + 1 == leitura:
                                         print("\nAcesso liberado.")
-                                        escrita = str(
-                                            input("\nDigite suas alterações desejadas: "))
+                                        escrita = str(input("\nDigite suas alterações desejadas: "))
                                         print("\nArquivo alterado.")
 
                                     else:
@@ -292,8 +311,7 @@ def __init__():
                                     print("Opção inválida!")
 
                             elif opcao == 0:
-                                print(
-                                    "\nVoltando à tela de autenticação e cadastro...")
+                                print("\nVoltando à tela de autenticação e cadastro...")
                                 autenticado = False
                                 anonimo = True
 
