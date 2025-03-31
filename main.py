@@ -249,10 +249,19 @@ def __init__():
                                 except ValueError:
                                     print("\nEntrada inválida. Apenas números são aceitos.")
                                     continue
-
+                                
+    
                                 if 1 <= leitura <= len(arquivos):
-                                    print("""
-            Lendo o arquivo...
+                                    arquivos_gerais = buscar_permissoes("geral", usuario)
+                                    nome_arquivo = arquivos_gerais[leitura - 1]
+
+                                    if nome_arquivo == "config.sys":
+                                        print("\nAcesso negado.")
+                                        continue
+
+                                    else:
+                                        print(f"""
+            Lendo o {nome_arquivo}...
                                     
             ==>>
                                     ,..........   ..........,         
@@ -265,8 +274,7 @@ def __init__():
                                 '''''''''''''''''';''';'''''''''''''''''' 
                                                     '''            
                                             
-                                            """)
-
+                                                """)
                                 elif leitura == 0:
                                     print("\nVoltando...")
 
