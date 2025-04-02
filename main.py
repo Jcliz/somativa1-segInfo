@@ -137,7 +137,7 @@ def buscar_permissoes(permissao, usuario):
     return usuario['permissoes'].get(permissao)
 
 def menu_opcoes(login):
-    __, usuario = buscar_usuario_matriz(login)
+    _d, usuario = buscar_usuario_matriz(login)
     arquivos = buscar_permissoes("geral", usuario)
 
     print("\nSelecione o arquivo para excluir: \n")
@@ -210,8 +210,8 @@ def __init__():
                                 continue
 
                             if opcao == 1:
-                                print("\nArquivos com permissão de leitura:")
-                                ___, usuario = buscar_usuario_matriz(login)
+                                print("\nArquivos:")
+                                _a, usuario = buscar_usuario_matriz(login)
                                 listar_arquivos(usuario)
 
                             elif opcao == 2:
@@ -241,7 +241,7 @@ def __init__():
                                     print("\nOpção inválida.")
 
                             elif opcao == 4:
-                                __, usuario = buscar_usuario_matriz(login)
+                                _b, usuario = buscar_usuario_matriz(login)
                                 arquivos = menu_opcoes(login)
                                 arquivos_gerais = buscar_permissoes("geral", usuario)
                                 arquivos_leitura = buscar_permissoes("leitura", usuario)
@@ -284,7 +284,7 @@ def __init__():
                                     print("\nOpção inválida.")
 
                             elif opcao == 5:
-                                _, usuario = buscar_usuario_matriz(login)
+                                _c, usuario = buscar_usuario_matriz(login)
 
                                 escrita_permitida = buscar_permissoes("escrita", usuario)
                                 arquivos = buscar_permissoes("geral", usuario)
