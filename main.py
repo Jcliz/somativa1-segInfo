@@ -1,4 +1,4 @@
-#aluno: João Pedro Cardoso de Liz
+# aluno: João Pedro Cardoso de Liz
 
 import json
 import json.tool
@@ -34,15 +34,15 @@ def salvar_resultados(permissoes):
         arquivo.write(permissoes_serializado)
 
 
-def registrar_usuario():
+def registrar_usuario(dados_json):
     permissoes = ler_arquivo_matriz()
-        
+
     login = str(input("\nDigite o login: "))
 
-    if buscar_usuario(login) != None:
+    if buscar_usuario(login, dados_json) is not None:
         print("\nO usuário já foi criado anteriormente.")
-        return
-    
+        return dados_json #dados sem alterações
+
     senha = str(input("Digite a senha: "))
 
     usuario = {
@@ -56,8 +56,9 @@ def registrar_usuario():
     with open("usuarios.json", "w") as arquivo:
         json.dump(usuarios, arquivo)
 
-    #criação do novo usuário na matriz
-    #inicialmente o usuário não possui nenhum arquivo, ou seja, deve criá-los
+    #recarrega os dados
+    dados_json = ler_arquivo_usuarios()
+
     novo_usuario_permissoes = {
         'nome': login,
         'permissoes': {
@@ -72,11 +73,13 @@ def registrar_usuario():
     salvar_resultados(permissoes)
     print("\nUsuário cadastrado com sucesso!")
 
-def buscar_usuario(login):
-    usuarios = ler_arquivo_usuarios()
-    for usuario in usuarios:
+    return dados_json #dados atualizados
+
+
+def buscar_usuario(login, dados_json):
+    for usuario in dados_json:
         if usuario['nome'] == login:
-            return usuarios.index(usuario)
+            return dados_json.index(usuario)
 
     return None
 
@@ -86,7 +89,7 @@ def buscar_usuario_matriz(login):
     for usuario in permissoes:
         if usuario['nome'] == login:
             return permissoes.index(usuario), usuario
-                    
+
     return None, None
 
 
@@ -94,7 +97,7 @@ def criar_arquivo(nome_arquivo, index, usuario, permissoes, nome):
     if buscar_arquivo(nome):
         print(f"\nO arquivo '{nome}' já existe!")
         return
-    
+
     if usuario is not None:
         permissoes[index]['permissoes']['leitura'].append(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].append(nome_arquivo)
@@ -106,9 +109,7 @@ def criar_arquivo(nome_arquivo, index, usuario, permissoes, nome):
 
 
 def excluir_arquivo(index, usuario, nome_arquivo, permissoes):
-    if usuario is not None and nome_arquivo in \
-                        permissoes[index]['permissoes']['exclusao']:
-        
+    if usuario is not None and nome_arquivo in permissoes[index]['permissoes']['exclusao']:
         permissoes[index]['permissoes']['leitura'].remove(nome_arquivo)
         permissoes[index]['permissoes']['escrita'].remove(nome_arquivo)
         permissoes[index]['permissoes']['exclusao'].remove(nome_arquivo)
@@ -142,6 +143,7 @@ def buscar_arquivo(nome_arquivo):
 def buscar_permissoes(permissao, usuario):
     return usuario['permissoes'].get(permissao)
 
+
 def menu_opcoes(login):
     _d, usuario = buscar_usuario_matriz(login)
     arquivos = buscar_permissoes("geral", usuario)
@@ -152,6 +154,7 @@ def menu_opcoes(login):
 
     print("\n[0] - Voltar")
     return arquivos
+
 
 def __init__():
     try:
@@ -180,7 +183,7 @@ def __init__():
                 login = str(input("\nDigite o login: "))
                 senha = str(input("Digite a senha: "))
 
-                busca = buscar_usuario(login)
+                busca = buscar_usuario(login, dados_json)
 
                 if busca is not None:
                     login_cadastrado = dados_json[busca]['nome']
@@ -212,7 +215,8 @@ def __init__():
                                 opcao = int(input("===>>> "))
 
                             except ValueError:
-                                print("\nEntrada inválida. Apenas números são aceitos.")
+                                print(
+                                    "\nEntrada inválida. Apenas números são aceitos.")
                                 continue
 
                             if opcao == 1:
@@ -222,8 +226,10 @@ def __init__():
 
                             elif opcao == 2:
                                 index, usuario = buscar_usuario_matriz(login)
-                                nome = str(input("\nInforme o nome do arquivo: "))
-                                criar_arquivo(nome, index, usuario, permissoes, nome)
+                                nome = str(
+                                    input("\nInforme o nome do arquivo: "))
+                                criar_arquivo(
+                                    nome, index, usuario, permissoes, nome)
 
                             elif opcao == 3:
                                 index, usuario = buscar_usuario_matriz(login)
@@ -235,7 +241,7 @@ def __init__():
                                 except ValueError:
                                     print("\nEntrada inválida. Apenas números são aceitos.")
                                     continue
-                        
+
                                 if 1 <= escolha <= len(arquivos):
                                     nome = arquivos[escolha - 1]
                                     excluir_arquivo(index, usuario, nome, permissoes)
@@ -258,8 +264,7 @@ def __init__():
                                 except ValueError:
                                     print("\nEntrada inválida. Apenas números são aceitos.")
                                     continue
-                                
-    
+
                                 if 1 <= leitura <= len(arquivos):
                                     nome_arquivo = arquivos_gerais[leitura - 1]
 
@@ -304,11 +309,10 @@ def __init__():
                                 print("\n[0] - Voltar")
 
                                 try:
-                                    leitura = int(input("\n===>>> "))
+                                    leitura = int(input("===>>> "))
 
                                 except ValueError:
-                                    print(
-                                        "\nEntrada inválida. Apenas números são aceitos.")
+                                    print("\nEntrada inválida. Apenas números são aceitos.")
                                     continue
 
                                 if 1 <= leitura <= len(arquivos):
@@ -341,7 +345,8 @@ def __init__():
                     print("\nUsuário inexistente!")
 
             elif opcao == 2.0:
-                registrar_usuario()
+                #atualiza dados para o cadastro
+                dados_json = registrar_usuario(dados_json)
 
             elif opcao == 0.0:
                 print("\nAté mais! :( \n")
