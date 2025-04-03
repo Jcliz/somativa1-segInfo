@@ -38,6 +38,11 @@ def registrar_usuario():
     permissoes = ler_arquivo_matriz()
         
     login = str(input("\nDigite o login: "))
+
+    if buscar_usuario(login) != None:
+        print("\nO usuário já foi criado anteriormente.")
+        return
+    
     senha = str(input("Digite a senha: "))
 
     usuario = {
@@ -65,6 +70,7 @@ def registrar_usuario():
 
     permissoes.append(novo_usuario_permissoes)
     salvar_resultados(permissoes)
+    print("\nUsuário cadastrado com sucesso!")
 
 def buscar_usuario(login):
     usuarios = ler_arquivo_usuarios()
@@ -336,7 +342,6 @@ def __init__():
 
             elif opcao == 2.0:
                 registrar_usuario()
-                print("\nUsuário cadastrado com sucesso!")
 
             elif opcao == 0.0:
                 print("\nAté mais! :( \n")
